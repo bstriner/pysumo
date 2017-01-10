@@ -1,0 +1,3 @@
+[submodule "sumo"]
+	path = sumo
+	url = https://github.com/bstriner/sumo.git

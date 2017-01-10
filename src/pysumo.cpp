@@ -374,7 +374,7 @@ static PyMethodDef PysumoMethods[] = {
 {"tls_setstate",  pysumo_tls_setstate, METH_VARARGS, "Set traffic light state"},
 {"vehicle_list",  pysumo_vehicle_list, METH_VARARGS, "Get list of vehicles"},
 {"vehicle_position",  pysumo_vehicle_position, METH_VARARGS, "Get vehicle position"},
-{"vehicle_speed",  pysumo_vehicle_speed, METH_VARARGS, "Get vehicle position"},
+{"vehicle_speed",  pysumo_vehicle_speed, METH_VARARGS, "Get vehicle speed"},
 {"vehicle_positions",  pysumo_vehicle_positions, METH_VARARGS, "Get list of vehicle positions"},
 {"vehicle_speeds",  pysumo_vehicle_speeds, METH_VARARGS, "Get list of vehicle speeds"},
 {NULL, NULL, 0, NULL}        /* Sentinel */

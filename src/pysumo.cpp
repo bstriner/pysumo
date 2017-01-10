@@ -142,11 +142,9 @@ pysumo_step(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_inductionloop_meanspeed(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	double meanspeed;
-	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname )) return NULL;
 	MSInductLoop* il = 
 		dynamic_cast<MSInductLoop*>(gNet->getDetectorControl()
 		.getTypedDetectors(SUMO_TAG_INDUCTION_LOOP).get(cname));
@@ -161,11 +159,9 @@ pysumo_inductionloop_meanspeed(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_inductionloop_vehiclenumber(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	int count;
-	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname )) return NULL;
 	MSInductLoop* il = 
 		dynamic_cast<MSInductLoop*>(gNet->getDetectorControl()
 		.getTypedDetectors(SUMO_TAG_INDUCTION_LOOP).get(cname));
@@ -180,11 +176,9 @@ pysumo_inductionloop_vehiclenumber(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_meme_meanspeed(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	double meanspeed;
-	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname )) return NULL;
 	MSE3Collector* e3 = 
 		static_cast<MSE3Collector*>(MSNet::getInstance()->getDetectorControl()
 		.getTypedDetectors(SUMO_TAG_ENTRY_EXIT_DETECTOR).get(cname));
@@ -199,11 +193,9 @@ pysumo_meme_meanspeed(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_meme_vehiclenumber(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	int count;
-	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname )) return NULL;
 	MSE3Collector* e3 = 
 		static_cast<MSE3Collector*>(MSNet::getInstance()->getDetectorControl()
 		.getTypedDetectors(SUMO_TAG_ENTRY_EXIT_DETECTOR).get(cname));
@@ -265,11 +257,9 @@ pysumo_vehicle_list(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_vehicle_position(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	double x,y,z;
-	if (! PyArg_ParseTuple( args, "s", &name)) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname)) return NULL;
 	
 	SUMOVehicle* sumoVehicle = MSNet::getInstance()->getVehicleControl().getVehicle(cname);
 	if (sumoVehicle == 0) {
@@ -293,11 +283,9 @@ pysumo_vehicle_position(PyObject *self, PyObject *args)
 static PyObject *
 pysumo_vehicle_speed(PyObject *self, PyObject *args)
 {
-	PyObject* name;
 	char* cname;
 	double speed;
-	if (! PyArg_ParseTuple( args, "s", &name)) return NULL;
-	cname = PyString_AsString(name);
+	if (! PyArg_ParseTuple( args, "s", &cname)) return NULL;
 	
 	SUMOVehicle* sumoVehicle = MSNet::getInstance()->getVehicleControl().getVehicle(cname);
 	if (sumoVehicle == 0) {

@@ -62,9 +62,3 @@ setup(name='pysumo',
 	  extra_objects=extra_objects
       #packages=['distutils', 'distutils.command'],
      )])
-	 
-#, include_dirs=['include'])
-          #library_dirs=['/usr/X11R6/lib'],
-          #libraries=['X11', 'Xt'])
-
-	 

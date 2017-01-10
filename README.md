@@ -20,6 +20,7 @@ Build SUMO before building pysumo. Must be built with `enable_pic=yes` so the li
 ```
 cd sumo/sumo
 autoreconf -i
+aclocal
 autoconfig
 automake
 ./configure enable_pic=yes

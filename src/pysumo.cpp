@@ -46,15 +46,6 @@ Globals
 **/
 MSNet* gNet;
 
-static PyObject *
-pysumo_testfunc(PyObject *self, PyObject *args)
-{
-	//const char *command;
-	//if (!PyArg_ParseTuple(args, "s", &command))
-	//	return NULL;
-	return Py_BuildValue("s", "Hello from c++!");
-}
-
 /**
  * loads the net, additional routes and the detectors
  */
@@ -98,36 +89,31 @@ pysumo_start(PyObject *self, PyObject *args)
 	
 	if (! PyArg_ParseTuple( args, "O!", &PyList_Type, &listObj )) return NULL;
 	numLines = PyList_Size(listObj);
-	char* myargv [250];
-	//char*** ret = new char**[numLines];
+	char** myargv = new char*[numLines];
 	for (i=0; i<numLines; i++){
 		strObj = PyList_GetItem(listObj, i);
 		myargv[i] = PyString_AsString( strObj );
 	}
 	OptionsIO::setArgs(numLines, myargv);
-	//delete ret;
+	delete[] myargv;
 	
     OptionsIO::getOptions();
     if (oc.processMetaOptions(numLines < 2)) {
 		SystemFrame::close();
 		return NULL;
 	}
-	XMLSubSys::setValidation(oc.getString("xml-validation"), oc.getString("xml-validation.net"));
+	XMLSubSys::setValidation(
+		oc.getString("xml-validation"), 
+		oc.getString("xml-validation.net"));
 	if (!MSFrame::checkOptions()) {
 		throw ProcessError();
 	}
 	MsgHandler::initOutputOptions();
 	RandHelper::initRandGlobal();
 	RandHelper::initRandGlobal(MSRouteHandler::getParsingRNG());
-	// load the net
 	gNet = load(oc);
-    // preload the routes especially for TraCI
     gNet->loadRoutes();
-//	if (net != 0) {
-//		ret = net->simulate(string2time(oc.getString("begin")), string2time(oc.getString("end")));
-	//} 
-	return Py_BuildValue("s", "Hello from c++!");
-	//Py_RETURN_NONE
+	Py_RETURN_NONE;
 }
 
 static PyObject *
@@ -146,20 +132,263 @@ Make a step in the network
 static PyObject *
 pysumo_step(PyObject *self, PyObject *args)
 {
-	gNet->preSimStepOutput();
+	//gNet->preSimStepOutput();
 	gNet->simulationStep();
-	gNet->postSimStepOutput();
+	//gNet->postSimStepOutput();
 	Py_RETURN_NONE;
 	 //MSNet::SimulationState state = simulationState(stop)
+}
+
+static PyObject *
+pysumo_inductionloop_meanspeed(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	double meanspeed;
+	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
+	cname = PyString_AsString(name);
+	MSInductLoop* il = 
+		dynamic_cast<MSInductLoop*>(gNet->getDetectorControl()
+		.getTypedDetectors(SUMO_TAG_INDUCTION_LOOP).get(cname));
+	if (il == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown induction loop");
+		return NULL;
+	}
+	meanspeed =il->getCurrentSpeed();
+	return Py_BuildValue("d", meanspeed);
+}
+
+static PyObject *
+pysumo_inductionloop_vehiclenumber(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	int count;
+	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
+	cname = PyString_AsString(name);
+	MSInductLoop* il = 
+		dynamic_cast<MSInductLoop*>(gNet->getDetectorControl()
+		.getTypedDetectors(SUMO_TAG_INDUCTION_LOOP).get(cname));
+	if (il == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown induction loop");
+		return NULL;
+	}
+	count =il->getCurrentPassedNumber();
+	return Py_BuildValue("i", count);
+}
+
+static PyObject *
+pysumo_meme_meanspeed(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	double meanspeed;
+	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
+	cname = PyString_AsString(name);
+	MSE3Collector* e3 = 
+		static_cast<MSE3Collector*>(MSNet::getInstance()->getDetectorControl()
+		.getTypedDetectors(SUMO_TAG_ENTRY_EXIT_DETECTOR).get(cname));
+	if (e3 == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown meme detector");
+		return NULL;
+	}
+	meanspeed = e3->getCurrentMeanSpeed();
+	return Py_BuildValue("d", meanspeed);
+}
+
+static PyObject *
+pysumo_meme_vehiclenumber(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	int count;
+	if (! PyArg_ParseTuple( args, "s", &name )) return NULL;
+	cname = PyString_AsString(name);
+	MSE3Collector* e3 = 
+		static_cast<MSE3Collector*>(MSNet::getInstance()->getDetectorControl()
+		.getTypedDetectors(SUMO_TAG_ENTRY_EXIT_DETECTOR).get(cname));
+	if (e3 == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown meme detector");
+		return NULL;
+	}
+	count = e3->getVehiclesWithin();
+	return Py_BuildValue("i", count);
+}
+static PyObject *
+pysumo_tls_getstate(PyObject *self, PyObject *args)
+{
+	char* cname;
+	if (! PyArg_ParseTuple( args, "s", &cname)) return NULL;	
+	if (!gNet->getTLSControl().knows(cname)) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown traffic light");
+		return NULL;
+	}
+    MSTLLogicControl::TLSLogicVariants& vars = 
+		gNet->getTLSControl().get(cname);
+	return Py_BuildValue("s", vars.getActive()->getCurrentPhaseDef().getState());
+}
+
+
+static PyObject *
+pysumo_tls_setstate(PyObject *self, PyObject *args)
+{
+	char* cname;
+	char* cstate;
+	if (! PyArg_ParseTuple( args, "ss", &cname, &cstate)) return NULL;
+	
+	if (!gNet->getTLSControl().knows(cname)) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown traffic light");
+		return NULL;
+	}
+    MSTLLogicControl::TLSLogicVariants& vars = 
+		gNet->getTLSControl().get(cname);
+	vars.setStateInstantiatingOnline(gNet->getTLSControl(), cstate);
+
+	Py_RETURN_NONE;
+}
+
+static PyObject *
+pysumo_vehicle_list(PyObject *self, PyObject *args)
+{
+	PyObject* ids;
+	ids = PyList_New(0);
+	MSVehicleControl& c = gNet->getVehicleControl();
+	for (MSVehicleControl::constVehIt i = c.loadedVehBegin();
+		i != c.loadedVehEnd(); ++i) {
+		if (i->second->isOnRoad() || i->second->isParking()) {
+			PyList_Append(ids, PyString_FromString(i->first.c_str()));
+		}
+	}
+	return ids;
+}
+
+static PyObject *
+pysumo_vehicle_position(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	double x,y,z;
+	if (! PyArg_ParseTuple( args, "s", &name)) return NULL;
+	cname = PyString_AsString(name);
+	
+	SUMOVehicle* sumoVehicle = MSNet::getInstance()->getVehicleControl().getVehicle(cname);
+	if (sumoVehicle == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown vehicle");
+		return NULL;
+	}
+	MSVehicle* v = dynamic_cast<MSVehicle*>(sumoVehicle);
+	if (v == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Vehicle is not a micro-simulation vehicle");
+		return NULL;
+	}
+	bool onRoad = v->isOnRoad();
+	bool visible = onRoad || v->isParking();
+	
+	x=visible ? v->getPosition().x() : INVALID_DOUBLE_VALUE;
+	y=visible ? v->getPosition().y() : INVALID_DOUBLE_VALUE;
+	z= visible ? v->getPosition().z() : INVALID_DOUBLE_VALUE;
+	return Py_BuildValue("ddd",x,y,z);
+}
+
+static PyObject *
+pysumo_vehicle_speed(PyObject *self, PyObject *args)
+{
+	PyObject* name;
+	char* cname;
+	double speed;
+	if (! PyArg_ParseTuple( args, "s", &name)) return NULL;
+	cname = PyString_AsString(name);
+	
+	SUMOVehicle* sumoVehicle = MSNet::getInstance()->getVehicleControl().getVehicle(cname);
+	if (sumoVehicle == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Unknown vehicle");
+		return NULL;
+	}
+	MSVehicle* v = dynamic_cast<MSVehicle*>(sumoVehicle);
+	if (v == 0) {
+		PyErr_SetString(PyExc_RuntimeError, "Vehicle is not a micro-simulation vehicle");
+		return NULL;
+	}
+	bool onRoad = v->isOnRoad();
+	bool visible = onRoad || v->isParking();
+	speed = visible ? v->getSpeed() : INVALID_DOUBLE_VALUE;
+	return Py_BuildValue("d",speed);
+}
+
+static PyObject *
+pysumo_vehicle_positions(PyObject *self, PyObject *args)
+{
+	PyObject* positions;
+	positions = PyList_New(0);
+	MSVehicleControl& c = gNet->getVehicleControl();
+	for (MSVehicleControl::constVehIt i = c.loadedVehBegin();
+		i != c.loadedVehEnd(); ++i) {
+		if (i->second->isOnRoad() || i->second->isParking()) {
+			SUMOVehicle* sumoVehicle = c.getVehicle(i->first.c_str());
+			if (sumoVehicle == 0) {
+				PyErr_SetString(PyExc_RuntimeError, "Unknown vehicle");
+				return NULL;
+			}
+			MSVehicle* v = dynamic_cast<MSVehicle*>(sumoVehicle);
+			if (v == 0) {
+				PyErr_SetString(PyExc_RuntimeError, "Vehicle is not a micro-simulation vehicle");
+				return NULL;
+			}
+			bool onRoad = v->isOnRoad();
+			bool visible = onRoad || v->isParking();
+			double x=visible ? v->getPosition().x() : INVALID_DOUBLE_VALUE;
+			double y=visible ? v->getPosition().y() : INVALID_DOUBLE_VALUE;
+			double z= visible ? v->getPosition().z() : INVALID_DOUBLE_VALUE;
+			PyList_Append(positions, Py_BuildValue("ddd",x,y,z));
+		}
+	}
+	return positions;
+}
+static PyObject *
+pysumo_vehicle_speeds(PyObject *self, PyObject *args)
+{
+	PyObject* speeds;
+	speeds = PyList_New(0);
+	MSVehicleControl& c = gNet->getVehicleControl();
+	for (MSVehicleControl::constVehIt i = c.loadedVehBegin();
+		i != c.loadedVehEnd(); ++i) {
+		if (i->second->isOnRoad() || i->second->isParking()) {
+			SUMOVehicle* sumoVehicle = c.getVehicle(i->first.c_str());
+			if (sumoVehicle == 0) {
+				PyErr_SetString(PyExc_RuntimeError, "Unknown vehicle");
+				return NULL;
+			}
+			MSVehicle* v = dynamic_cast<MSVehicle*>(sumoVehicle);
+			if (v == 0) {
+				PyErr_SetString(PyExc_RuntimeError, "Vehicle is not a micro-simulation vehicle");
+				return NULL;
+			}
+			bool onRoad = v->isOnRoad();
+			bool visible = onRoad || v->isParking();
+			double speed = visible ? v->getSpeed() : INVALID_DOUBLE_VALUE;
+			PyList_Append(speeds, Py_BuildValue("d",speed));
+		}
+	}
+	return speeds;
 }
 
 // Method table
 
 static PyMethodDef PysumoMethods[] = {
-{"testfunc",  pysumo_testfunc, METH_VARARGS, "My testing function."},
 {"start",  pysumo_start, METH_VARARGS, "Start SUMO"},
 {"stop",  pysumo_stop, METH_VARARGS, "Stop SUMO"},
 {"step",  pysumo_step, METH_VARARGS, "Simulate one step"},
+{"inductionloop_meanspeed",  pysumo_inductionloop_meanspeed, METH_VARARGS, "Get induction loop mean speed"},
+{"inductionloop_vehiclenumber",  pysumo_inductionloop_vehiclenumber, METH_VARARGS, "Get induction loop vehicle count"},
+{"meme_meanspeed",  pysumo_meme_meanspeed, METH_VARARGS, "Get multientry/multiexit mean speed"},
+{"meme_vehiclenumber",  pysumo_meme_vehiclenumber, METH_VARARGS, "Get multientry/multiexit vehicle number"},
+{"tls_getstate",  pysumo_tls_getstate, METH_VARARGS, "Get traffic light state"},
+{"tls_setstate",  pysumo_tls_setstate, METH_VARARGS, "Set traffic light state"},
+{"vehicle_list",  pysumo_vehicle_list, METH_VARARGS, "Get list of vehicles"},
+{"vehicle_position",  pysumo_vehicle_position, METH_VARARGS, "Get vehicle position"},
+{"vehicle_speed",  pysumo_vehicle_speed, METH_VARARGS, "Get vehicle position"},
+{"vehicle_positions",  pysumo_vehicle_positions, METH_VARARGS, "Get list of vehicle positions"},
+{"vehicle_speeds",  pysumo_vehicle_speeds, METH_VARARGS, "Get list of vehicle speeds"},
 {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

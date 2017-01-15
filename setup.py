@@ -40,7 +40,7 @@ class BuildLibsumoCommand(Command):
             assert (subprocess.Popen(['aclocal'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['libtoolize'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['autoconf'], cwd=srcdir).wait() == 0)
-            assert (subprocess.Popen(['autoreconf'], cwd=srcdir).wait() == 0)
+            assert (subprocess.Popen(['autoreconf','-i'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['automake', '--add-missing'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['./configure', '--enable-libsumo=yes'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['make'], cwd=srcdir).wait() == 0)

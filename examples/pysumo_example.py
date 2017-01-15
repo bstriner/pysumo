@@ -13,11 +13,11 @@ def random_action():
   
 time_start = time()
 for i in tqdm(range(500)):
-	pysumo.start(cmd)
+	pysumo.simulation_start(cmd)
 	for j in range(1000):
 		pysumo.tls_setstate("0",random_action())
-		pysumo.step()	
+		pysumo.simulation_step()	
 		positions = pysumo.vehicle_positions()
-	pysumo.stop()
+	pysumo.simulation_stop()
 time_end = time()
 print "pysumo time elapsed: {}".format(time_end-time_start)

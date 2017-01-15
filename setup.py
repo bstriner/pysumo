@@ -23,7 +23,12 @@ class BuildLibsumoCommand(Command):
     def finalize_options(self):
         #  """Post-process options."""
         if not self.no_build_libsumo:
-            assert os.path.exists('sumo/sumo/src/libsumo'), 'sumo/sumo/src/libsumo does not exist. Did you git submodule init and git submodule update?'
+            libsumodir = 'sumo/sumo/src/libsumo'
+            if not os.path.exists(libsumodir):
+                assert (subprocess.Popen(['git', 'submodule', 'init']).wait() == 0)
+                assert (subprocess.Popen(['git', 'submodule', 'update']).wait() == 0)
+            assert os.path.exists(libsumodir), \
+                '{} does not exist. Did you git submodule init and git submodule update?'.format(libsumodir)
 
     def run(self):
         """Run command."""
@@ -50,9 +55,10 @@ class PysumoBuildCommand(build):
         self.run_command("build_libsumo")
         build.run(self)
 
+
 cmdclass = {
-	"build": PysumoBuildCommand,
-	"build_libsumo": BuildLibsumoCommand
+    "build": PysumoBuildCommand,
+    "build_libsumo": BuildLibsumoCommand
 }
 
 ext_args = {
@@ -61,14 +67,14 @@ ext_args = {
 }
 
 src = [
-	'src/inductionloop.cpp',
-	'src/meme.cpp',
-	'src/simulation.cpp',
-	'src/tls.cpp',
-	'src/vehicle.cpp',
-	'src/pysumo.cpp'
+    'src/inductionloop.cpp',
+    'src/meme.cpp',
+    'src/simulation.cpp',
+    'src/tls.cpp',
+    'src/vehicle.cpp',
+    'src/pysumo.cpp'
 ]
-	
+
 ext_modules = [
     Extension('pysumo', src, **ext_args)
 ]

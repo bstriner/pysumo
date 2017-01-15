@@ -2,27 +2,35 @@ from distutils.core import setup, Extension
 from distutils.cmd import Command
 from distutils.command.install import install
 from distutils.command.build import build
+from distutils.core import Distribution
 import subprocess
 import os
+
+
+class PysumoDistribution(Distribution):
+    global_options = Distribution.global_options + [
+        ('skip-libsumo', None, 'Skip building and installing libsumo library; use if libsumo already installed.')
+    ]
+
+    def __init__(self, *args, **kwargs):
+        self.skip_libsumo = False
+        Distribution.__init__(self, *args, **kwargs)
 
 
 class BuildLibsumoCommand(Command):
     """Build libsumo module."""
 
     description = 'Build libsumo shared library'
-    user_options = [
-        # The format is (long option, short option, description).
-        ('no-build-libsumo', None, 'skip building libsumo'),
-    ]
+    user_options = []
 
     def initialize_options(self):
         # """Set default values for options."""
         # Each user option must be listed here with their default value.
-        self.no_build_libsumo = False
+        pass
 
     def finalize_options(self):
         #  """Post-process options."""
-        if not self.no_build_libsumo:
+        if not self.distribution.skip_libsumo:
             libsumodir = 'sumo/sumo/src/libsumo'
             if not os.path.exists(libsumodir):
                 assert (subprocess.Popen(['git', 'submodule', 'init']).wait() == 0)
@@ -32,7 +40,7 @@ class BuildLibsumoCommand(Command):
 
     def run(self):
         """Run command."""
-        if self.no_build_libsumo:
+        if self.distribution.skip_libsumo:
             self.announce("Skipping libsumo shared library build")
         else:
             self.announce("Building libsumo shared library")
@@ -40,7 +48,7 @@ class BuildLibsumoCommand(Command):
             assert (subprocess.Popen(['aclocal'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['libtoolize'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['autoconf'], cwd=srcdir).wait() == 0)
-            assert (subprocess.Popen(['autoreconf','-i'], cwd=srcdir).wait() == 0)
+            assert (subprocess.Popen(['autoreconf', '-i'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['automake', '--add-missing'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['./configure', '--enable-libsumo=yes'], cwd=srcdir).wait() == 0)
             assert (subprocess.Popen(['make'], cwd=srcdir).wait() == 0)
@@ -86,4 +94,5 @@ setup(name='pysumo',
       author_email='bstriner@gmail.com',
       url='https://github.com/bstriner/pysumo',
       cmdclass=cmdclass,
+      distclass=PysumoDistribution,
       ext_modules=ext_modules)

@@ -39,3 +39,5 @@ PyObject *
 pysumo_vehicle_positions(PyObject *self, PyObject *args);
 PyObject *
 pysumo_vehicle_speeds(PyObject *self, PyObject *args);
+PyObject *
+pysumo_vehicle_lane_position(PyObject *self, PyObject *args);

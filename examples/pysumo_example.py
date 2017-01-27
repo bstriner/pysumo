@@ -16,8 +16,10 @@ for i in tqdm(range(500)):
 	pysumo.simulation_start(cmd)
 	for j in range(1000):
 		pysumo.tls_setstate("0",random_action())
-		pysumo.simulation_step()	
-		positions = pysumo.vehicle_positions()
+		pysumo.simulation_step()
+		ids = pysumo.vehicle_list()
+		if ids:
+			print pysumo.vehicle_lane_position(ids[0])
 	pysumo.simulation_stop()
 time_end = time()
 print "pysumo time elapsed: {}".format(time_end-time_start)

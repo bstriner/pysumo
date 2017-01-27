@@ -65,3 +65,13 @@ pysumo_vehicle_speeds(PyObject *self, PyObject *args)
 	}
 	return speeds;
 }
+
+PyObject *
+pysumo_vehicle_lane_position(PyObject *self, PyObject *args)
+{
+    char* id;
+	if (! PyArg_ParseTuple( args, "s", &id)) return NULL;
+	PYSUMO_EXCEPTION_START
+	return Py_BuildValue("d", libsumo_vehicle_lane_position(id));
+	PYSUMO_EXCEPTION_END
+}

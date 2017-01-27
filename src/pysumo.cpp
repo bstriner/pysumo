@@ -15,6 +15,7 @@ static PyMethodDef PysumoMethods[] = {
 {"vehicle_speed",  pysumo_vehicle_speed, METH_VARARGS, "Get vehicle speed"},
 {"vehicle_positions",  pysumo_vehicle_positions, METH_VARARGS, "Get list of vehicle positions"},
 {"vehicle_speeds",  pysumo_vehicle_speeds, METH_VARARGS, "Get list of vehicle speeds"},
+{"vehicle_lane_position",pysumo_vehicle_lane_position,METH_VARARGS, "get relative vehicle position in lane, return a distance from the beginning of the lane"},
 {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

@@ -22,3 +22,23 @@ pysumo_tls_setstate(PyObject *self, PyObject *args)
 	PYSUMO_EXCEPTION_END
 	Py_RETURN_NONE;
 }
+
+PyObject *
+pysumo_tls_getControlledLanes(PyObject *self, PyObject *args)
+{
+    char* id;
+    PyObject* lanes;
+    lanes = PyList_New(0);
+    if (! PyArg_ParseTuple( args, "s", &id)) return NULL;
+    int count = libsumo_tls_controlledLanes_count(id);
+    std::basic_string<char>* list = new std::basic_string<char>[count];
+    
+    libsumo_tls_controlledLanes(id, list);
+    for(int i=0; i<count; i++)
+    {
+        PyList_Append(lanes, PyString_FromString(list[i].c_str()));
+    }
+    delete[] list;
+    return lanes;
+    
+}

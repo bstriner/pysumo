@@ -80,7 +80,8 @@ src = [
     'src/simulation.cpp',
     'src/tls.cpp',
     'src/vehicle.cpp',
-    'src/pysumo.cpp'
+    'src/pysumo.cpp',
+    'src/lane.cpp'
 ]
 
 ext_modules = [

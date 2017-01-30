@@ -22,6 +22,8 @@ pysumo_tls_getstate(PyObject *self, PyObject *args);
 PyObject *
 pysumo_tls_setstate(PyObject *self, PyObject *args);
 PyObject *
+pysumo_tls_getControlledLanes(PyObject *self, PyObject *args);
+PyObject *
 pysumo_inductionloop_meanspeed(PyObject *self, PyObject *args);
 PyObject *
 pysumo_inductionloop_vehiclenumber(PyObject *self, PyObject *args);
@@ -41,3 +43,7 @@ PyObject *
 pysumo_vehicle_speeds(PyObject *self, PyObject *args);
 PyObject *
 pysumo_vehicle_lane_position(PyObject *self, PyObject *args);
+PyObject *
+pysumo_lane_list(PyObject *self, PyObject *args);
+PyObject *
+pysumo_lane_onLaneVehicles(PyObject *self, PyObject *args);

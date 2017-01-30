@@ -10,12 +10,15 @@ static PyMethodDef PysumoMethods[] = {
 {"meme_vehiclenumber",  pysumo_meme_vehiclenumber, METH_VARARGS, "Get multientry/multiexit vehicle number"},
 {"tls_getstate",  pysumo_tls_getstate, METH_VARARGS, "Get traffic light state"},
 {"tls_setstate",  pysumo_tls_setstate, METH_VARARGS, "Set traffic light state"},
+{"tls_getControlledLanes", pysumo_tls_getControlledLanes, METH_VARARGS, "get all lanes a traffic light controls"},
 {"vehicle_list",  pysumo_vehicle_list, METH_VARARGS, "Get list of vehicles"},
 {"vehicle_position",  pysumo_vehicle_position, METH_VARARGS, "Get vehicle position"},
 {"vehicle_speed",  pysumo_vehicle_speed, METH_VARARGS, "Get vehicle speed"},
 {"vehicle_positions",  pysumo_vehicle_positions, METH_VARARGS, "Get list of vehicle positions"},
 {"vehicle_speeds",  pysumo_vehicle_speeds, METH_VARARGS, "Get list of vehicle speeds"},
-{"vehicle_lane_position",pysumo_vehicle_lane_position,METH_VARARGS, "get relative vehicle position in lane, return a distance from the beginning of the lane"},
+{"vehicle_lane_position", pysumo_vehicle_lane_position, METH_VARARGS, "get relative vehicle position in lane, return a distance from the beginning of the lane"},
+{"lane_list", pysumo_lane_list, METH_VARARGS, "get all lanes"},
+{"lane_onLaneVehicles",pysumo_lane_onLaneVehicles, METH_VARARGS, "get all vehicles id on a lane"},
 {NULL, NULL, 0, NULL}        /* Sentinel */
 };
 

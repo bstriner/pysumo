@@ -14,12 +14,14 @@ def random_action():
 time_start = time()
 for i in tqdm(range(500)):
 	pysumo.simulation_start(cmd)
+#	print 'lanes:', pysumo.tls_getControlledLanes('0');
+	print 'all lanes', pysumo.lane_list();
 	for j in range(1000):
 		pysumo.tls_setstate("0",random_action())
 		pysumo.simulation_step()
-		ids = pysumo.vehicle_list()
+		ids =  pysumo.lane_onLaneVehicles("0_n_0")
 		if ids:
-			print pysumo.vehicle_lane_position(ids[0])
+			print ids;
 	pysumo.simulation_stop()
 time_end = time()
 print "pysumo time elapsed: {}".format(time_end-time_start)

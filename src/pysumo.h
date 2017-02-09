@@ -18,6 +18,8 @@ pysumo_simulation_stop(PyObject *self, PyObject *args);
 PyObject *
 pysumo_simulation_step(PyObject *self, PyObject *args);
 PyObject *
+pysumo_simulation_minexpectednumber(PyObject *self, PyObject *args);
+PyObject *
 pysumo_tls_getstate(PyObject *self, PyObject *args);
 PyObject *
 pysumo_tls_setstate(PyObject *self, PyObject *args);
@@ -32,11 +34,17 @@ pysumo_meme_meanspeed(PyObject *self, PyObject *args);
 PyObject *
 pysumo_meme_vehiclenumber(PyObject *self, PyObject *args);
 PyObject *
+pysumo_meme_vehiclehaltingnumber(PyObject *self, PyObject *args);
+PyObject *
+pysumo_meme_vehicleids(PyObject *self, PyObject *args);
+PyObject *
 pysumo_vehicle_list(PyObject *self, PyObject *args);
 PyObject *
 pysumo_vehicle_position(PyObject *self, PyObject *args);
 PyObject *
 pysumo_vehicle_speed(PyObject *self, PyObject *args);
+PyObject *
+pysumo_vehicle_waitingtime(PyObject *self, PyObject *args);
 PyObject *
 pysumo_vehicle_positions(PyObject *self, PyObject *args);
 PyObject *

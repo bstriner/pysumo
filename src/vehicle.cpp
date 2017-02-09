@@ -36,6 +36,16 @@ pysumo_vehicle_speed(PyObject *self, PyObject *args)
 }
 
 PyObject *
+pysumo_vehicle_waitingtime(PyObject *self, PyObject *args)
+{
+	char* id;
+	if (! PyArg_ParseTuple( args, "s", &id)) return NULL;
+	PYSUMO_EXCEPTION_START
+	return Py_BuildValue("d", libsumo_vehicle_waitingtime(id));
+	PYSUMO_EXCEPTION_END
+}
+
+PyObject *
 pysumo_vehicle_positions(PyObject *self, PyObject *args)
 {
 	PyObject* positions;

@@ -46,3 +46,11 @@ pysumo_simulation_step(PyObject *self, PyObject *args)
 	PYSUMO_EXCEPTION_END
 	Py_RETURN_NONE;
 }
+
+PyObject *
+pysumo_simulation_minexpectednumber(PyObject *self, PyObject *args)
+{
+	PYSUMO_EXCEPTION_START
+	return Py_BuildValue("i",libsumo_simulation_minexpectednumber());
+	PYSUMO_EXCEPTION_END
+}
